@@ -25,14 +25,28 @@ pipeline {
                 }
             }
         }
+        // stage('Create Images of Simple API') {
+        //     steps {
+        //         sh 'docker stop simple-api-container | true'
+        //         sh 'docker rm simple-api-container | true'
+        //         sh 'docker build -t simple-api .'
+        //     // Build Docker image using provided Dockerfile
+        //     }
+        // }
         stage('Create Images of Simple API') {
             steps {
-                sh 'docker stop simple-api-container | true'
-                sh 'docker rm simple-api-container | true'
-                sh 'docker build -t simple-api .'
-            // Build Docker image using provided Dockerfile
+                script {
+                    // Check if the container exists and stop/remove it
+                    def containerExists = sh(script: 'docker ps -a -q -f name=simple-api-container', returnStdout: true).trim()
+                    if (containerExists) {
+                        sh 'docker stop simple-api-container'
+                        sh 'docker rm simple-api-container'
+                    }
+                    sh 'docker build -t simple-api .'
+                }
             }
         }
+        
         stage('Create Container of Simple API') {
             steps {
                 sh 'docker run -d -p 5000:5000 --name simple-api-container simple-api'
