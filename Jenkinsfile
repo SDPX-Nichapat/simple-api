@@ -83,6 +83,26 @@ pipeline {
             }
         }
 
+        // stage('Running Preprod') {
+        //     agent {
+        //         label 'preprod'
+        //     }
+        //     steps {
+        //         script {
+        //             // เข้าสู่ระบบ GitHub Container Registry
+        //             withCredentials([string(credentialsId: 'my-github-token', variable: 'GITHUB_TOKEN')]) {
+        //                 sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u Horiiya --password-stdin'
+        //             }
+
+        //             // ดึงภาพจาก GitHub Container Registry
+        //             sh 'docker pull ghcr.io/horiiya/simple-api:latest || true'
+
+        //             // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
+        //             sh 'docker-compose down || true'
+        //             sh 'docker-compose up -d --build || true'
+        //         }
+        //     }
+        // }
         stage('Running Preprod') {
             agent {
                 label 'preprod'
@@ -91,17 +111,22 @@ pipeline {
                 script {
                     // เข้าสู่ระบบ GitHub Container Registry
                     withCredentials([string(credentialsId: 'my-github-token', variable: 'GITHUB_TOKEN')]) {
-                        sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u Horiiya --password-stdin'
-                    }
-
-                    // ดึงภาพจาก GitHub Container Registry
-                    sh 'docker pull ghcr.io/horiiya/simple-api:latest || true'
-
-                    // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d --build'
+                        sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u Horiiya --password-stdin || true'
                 }
-            }
+
+                // ดึงภาพจาก GitHub Container Registry
+                sh 'docker pull ghcr.io/horiiya/simple-api:latest || true'
+
+                // ตรวจสอบว่ามีไฟล์ docker-compose.yml หรือไม่
+                if (fileExists('docker-compose.yml')) {
+                    // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
+                    sh 'docker-compose down || true'
+                    sh 'docker-compose up -d --build || true'
+                } else {
+                    error("docker-compose.yml not found")
+                }
         }
+    }
+}
     }
 }
