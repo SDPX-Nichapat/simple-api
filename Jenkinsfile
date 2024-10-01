@@ -5,7 +5,7 @@ pipeline {
     stages {
         stage('Clone simple-api repository') {
             steps {
-                git url: 'https://github.com/SDPX-Nichapat/simple-api.git', branch: 'main'
+                git url: 'https://github.com/nichaOrg/simple-api-registry.git', branch: 'main'
             }
         }
 
@@ -13,11 +13,11 @@ pipeline {
             steps {
                 script {
                     // Build and test API
-                    
+
                     // sh 'pip install -r requirements.txt' // Install dependencies
                     sh 'pip install --no-cache-dir --upgrade -r requirements.txt'
                     sh 'python3 app.py'
-                    
+
                     // sh 'sleep 5' // Wait for API to start
 
                     // Run unit tests
@@ -25,28 +25,14 @@ pipeline {
                 }
             }
         }
-        // stage('Create Images of Simple API') {
-        //     steps {
-        //         sh 'docker stop simple-api-container | true'
-        //         sh 'docker rm simple-api-container | true'
-        //         sh 'docker build -t simple-api .'
-        //     // Build Docker image using provided Dockerfile
-        //     }
-        // }
         stage('Create Images of Simple API') {
             steps {
-                script {
-                    // Check if the container exists and stop/remove it
-                    def containerExists = sh(script: 'docker ps -a -q -f name=simple-api-container', returnStdout: true).trim()
-                    if (containerExists) {
-                        sh 'docker stop simple-api-container'
-                        sh 'docker rm simple-api-container'
-                    }
-                    sh 'docker build -t simple-api .'
-                }
+                sh 'docker stop simple-api-container | true'
+                sh 'docker rm simple-api-container | true'
+                sh 'docker build -t simple-api .'
+            // Build Docker image using provided Dockerfile
             }
         }
-        
         stage('Create Container of Simple API') {
             steps {
                 sh 'docker run -d -p 5000:5000 --name simple-api-container simple-api'
@@ -58,7 +44,7 @@ pipeline {
             steps {
                 script {
                     dir('./robot3/') {
-                        git url: 'https://github.com/SDPX-Nichapat/simple-api-robot.git', branch: 'main'
+                        git url: 'https://github.com/nichaOrg/simple-api-robot-registry.git', branch: 'main'
                     }
                     sh 'cd ./robot3 && robot test_robot.robot'
                 }
@@ -75,58 +61,32 @@ pipeline {
                     }
 
                     // Build and tag the Docker image
-                    sh 'docker build -t ghcr.io/horiiya/simple-api:latest .'
+                    sh 'docker build -t ghcr.io/horiiya/simple-api-registry:latest .'
 
                     // Push the image to GitHub Container Registry
-                    sh 'docker push ghcr.io/horiiya/simple-api:latest'
+                    sh 'docker push ghcr.io/horiiya/simple-api-registry:latest'
                 }
             }
         }
 
-        // stage('Running Preprod') {
-        //     agent {
-        //         label 'preprod'
-        //     }
-        //     steps {
-        //         script {
-        //             // เข้าสู่ระบบ GitHub Container Registry
-        //             withCredentials([string(credentialsId: 'my-github-token', variable: 'GITHUB_TOKEN')]) {
-        //                 sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u Horiiya --password-stdin'
-        //             }
-
-        //             // ดึงภาพจาก GitHub Container Registry
-        //             sh 'docker pull ghcr.io/horiiya/simple-api:latest || true'
-
-        //             // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
-        //             sh 'docker-compose down || true'
-        //             sh 'docker-compose up -d --build || true'
-        //         }
-        //     }
-        // }
         stage('Running Preprod') {
             agent {
                 label 'preprod'
             }
             steps {
                 script {
-                    // เข้าสู่ระบบ GitHub Container Registry
-                    withCredentials([string(credentialsId: 'my-github-token', variable: 'GITHUB_TOKEN')]) {
-                        sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u Horiiya --password-stdin'
+                // เข้าสู่ระบบ GitHub Container Registry
+                withCredentials([string(credentialsId: 'my-github-token', variable: 'GITHUB_TOKEN')]) {
+                    sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u Horiiya --password-stdin'
                 }
 
                 // ดึงภาพจาก GitHub Container Registry
-                sh 'docker pull ghcr.io/horiiya/simple-api:latest'
+                sh 'docker pull ghcr.io/horiiya/simple-api-registry:latest'
 
-                // ตรวจสอบว่ามีไฟล์ docker-compose.yml หรือไม่
-                if (fileExists('compose.yaml')) {
-                    // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d --build'
-                } else {
-                    error("compose.yaml not found")
+                // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
+                sh 'docker compose down && docker system prune -a -f && docker compose up -d --build'
                 }
+            }
         }
-    }
-}
     }
 }
