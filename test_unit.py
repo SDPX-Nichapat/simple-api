@@ -46,10 +46,6 @@ import app
 
 class TestApp(unittest.TestCase):
 
-    def setUp(self):
-        self.app = app.test_client()  # สร้าง test client
-        self.app.testing = True  # ตั้งค่าให้เป็น testing mode
-
     def test_true_when_x_is_17(self):
         response = app.is_prime(17)
         self.assertEqual(response, "true")
