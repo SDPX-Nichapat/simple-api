@@ -118,12 +118,12 @@ pipeline {
                 sh 'docker pull ghcr.io/horiiya/simple-api:latest || true'
 
                 // ตรวจสอบว่ามีไฟล์ docker-compose.yml หรือไม่
-                if (fileExists('docker-compose.yml')) {
+                if (fileExists('compose.yaml')) {
                     // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
                     sh 'docker-compose down || true'
                     sh 'docker-compose up -d --build || true'
                 } else {
-                    error("docker-compose.yml not found")
+                    error("compose.yaml not found")
                 }
         }
     }
