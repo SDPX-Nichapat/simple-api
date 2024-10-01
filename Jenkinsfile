@@ -89,16 +89,17 @@ pipeline {
             }
             steps {
                 script {
-                // เข้าสู่ระบบ GitHub Container Registry
-                withCredentials([string(credentialsId: 'my-github-token', variable: 'GITHUB_TOKEN')]) {
-                    sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u Horiiya --password-stdin'
-                }
+                    // เข้าสู่ระบบ GitHub Container Registry
+                    withCredentials([string(credentialsId: 'my-github-token', variable: 'GITHUB_TOKEN')]) {
+                        sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u Horiiya --password-stdin'
+                    }
 
-                // ดึงภาพจาก GitHub Container Registry
-                sh 'sudo docker pull ghcr.io/horiiya/simple-api:latest'
+                    // ดึงภาพจาก GitHub Container Registry
+                    sh 'docker pull ghcr.io/horiiya/simple-api:latest'
 
-                // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
-                sh 'sudo docker compose down && sudo docker system prune -a -f && sudo docker compose up -d --build'
+                    // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
+                    sh 'docker-compose down'
+                    sh 'docker-compose up -d --build'
                 }
             }
         }
