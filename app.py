@@ -35,5 +35,10 @@ def prime(num):
     
     return "true"
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
+@app.route("/hello/<name>", methods=["GET"])
+def hello(name):
+    name = str(name)
+    return "Hello " + name
+
+if __name__ == "__main__":
+    app.run()
