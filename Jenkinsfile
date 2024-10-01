@@ -111,17 +111,17 @@ pipeline {
                 script {
                     // เข้าสู่ระบบ GitHub Container Registry
                     withCredentials([string(credentialsId: 'my-github-token', variable: 'GITHUB_TOKEN')]) {
-                        sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u Horiiya --password-stdin || true'
+                        sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u Horiiya --password-stdin'
                 }
 
                 // ดึงภาพจาก GitHub Container Registry
-                sh 'docker pull ghcr.io/horiiya/simple-api:latest || true'
+                sh 'docker pull ghcr.io/horiiya/simple-api:latest'
 
                 // ตรวจสอบว่ามีไฟล์ docker-compose.yml หรือไม่
                 if (fileExists('compose.yaml')) {
                     // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
-                    sh 'docker-compose down || true'
-                    sh 'docker-compose up -d --build || true'
+                    sh 'docker-compose down'
+                    sh 'docker-compose up -d --build'
                 } else {
                     error("compose.yaml not found")
                 }
