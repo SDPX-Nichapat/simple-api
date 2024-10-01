@@ -7,7 +7,6 @@ app = Flask(__name__)
 def index():
     return "Hello, World"
 
-
 @app.route("/getcode", methods=["GET"])
 def getcode():
     return "getcode"
@@ -16,7 +15,7 @@ def getcode():
 @app.route("/plus/<num1>/<num2>", methods=["GET"])
 def calculate(num1, num2):
     try:
-        num1 = eval(num1)
+        num1 = int(num1)
         num2 = int(num2)
 
         results = f"{num1} + {num2} = {num1 + num2}"
