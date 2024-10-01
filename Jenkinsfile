@@ -5,7 +5,7 @@ pipeline {
     stages {
         stage('Clone simple-api repository') {
             steps {
-                git url: 'https://github.com/nichaOrg/simple-api-registry.git', branch: 'main'
+                git url: 'https://github.com/SDPX-Nichapat/simple-api.git', branch: 'main'
             }
         }
 
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                     dir('./robot3/') {
-                        git url: 'https://github.com/nichaOrg/simple-api-robot-registry.git', branch: 'main'
+                        git url: 'https://github.com/SDPX-Nichapat/simple-api-robot.git', branch: 'main'
                     }
                     sh 'cd ./robot3 && robot test_robot.robot'
                 }
@@ -61,10 +61,10 @@ pipeline {
                     }
 
                     // Build and tag the Docker image
-                    sh 'docker build -t ghcr.io/horiiya/simple-api-registry:latest .'
+                    sh 'docker build -t ghcr.io/horiiya/simple-api:latest .'
 
                     // Push the image to GitHub Container Registry
-                    sh 'docker push ghcr.io/horiiya/simple-api-registry:latest'
+                    sh 'docker push ghcr.io/horiiya/simple-api:latest'
                 }
             }
         }
@@ -81,7 +81,7 @@ pipeline {
                 }
 
                 // ดึงภาพจาก GitHub Container Registry
-                sh 'docker pull ghcr.io/horiiya/simple-api-registry:latest'
+                sh 'docker pull ghcr.io/horiiya/simple-api:latest'
 
                 // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
                 sh 'docker compose down && docker system prune -a -f && docker compose up -d --build'
