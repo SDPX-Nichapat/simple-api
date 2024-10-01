@@ -95,7 +95,7 @@ pipeline {
                     }
 
                     // ดึงภาพจาก GitHub Container Registry
-                    sh 'docker pull ghcr.io/horiiya/simple-api:latest'
+                    sh 'sudo docker pull ghcr.io/horiiya/simple-api:latest'
 
                     // นำขึ้นคอนเทนเนอร์ด้วยภาพที่ดึงมา
                     sh 'docker-compose down'
