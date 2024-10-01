@@ -40,5 +40,5 @@ def hello(name):
     name = str(name)
     return "Hello " + name
 
-if __name__ == "__main__":
-    app.run()
+# if __name__ == "__main__":
+#     app.run()
